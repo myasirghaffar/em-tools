@@ -17,3 +17,98 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* LexKit defaultLexKitTheme — blog body editor */
+.lexkit-content-editable {
+  outline: none;
+}
+.lexkit-editor-container .lexkit-content-editable {
+  position: relative;
+  z-index: 2;
+}
+.lexkit-editor-container .lexkit-placeholder {
+  pointer-events: none;
+  user-select: none;
+  z-index: 0 !important;
+}
+.lexkit-placeholder {
+  pointer-events: none;
+  user-select: none;
+}
+.lexkit-text-bold { font-weight: 700; }
+.lexkit-text-italic { font-style: italic; }
+.lexkit-text-underline { text-decoration: underline; }
+.lexkit-text-strikethrough { text-decoration: line-through; }
+.lexkit-text-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.25em;
+  border-radius: 0.25rem;
+  background: rgb(241 245 249);
+  color: rgb(15 23 42);
+}
+.prose-invert .lexkit-text-code {
+  background: rgb(30 41 59);
+  color: rgb(241 245 249);
+}
+.lexkit-content-editable .lexkit-paragraph {
+  margin: 0.5rem 0;
+}
+.lexkit-content-editable .lexkit-heading-h1,
+.lexkit-content-editable .lexkit-heading-h2,
+.lexkit-content-editable .lexkit-heading-h3,
+.lexkit-content-editable .lexkit-heading-h4,
+.lexkit-content-editable .lexkit-heading-h5,
+.lexkit-content-editable .lexkit-heading-h6 {
+  margin: 0.85rem 0 0.45rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: inherit;
+}
+.lexkit-content-editable .lexkit-heading-h1 { font-size: 2rem; }
+.lexkit-content-editable .lexkit-heading-h2 { font-size: 1.7rem; }
+.lexkit-content-editable .lexkit-heading-h3 { font-size: 1.45rem; }
+.lexkit-content-editable .lexkit-heading-h4 { font-size: 1.25rem; }
+.lexkit-content-editable .lexkit-heading-h5 { font-size: 1.1rem; }
+.lexkit-content-editable .lexkit-heading-h6 {
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.lexkit-content-editable .lexkit-list-ul,
+.lexkit-content-editable .lexkit-list-ol {
+  margin: 0.55rem 0;
+  padding-left: 1.5rem;
+}
+.lexkit-content-editable .lexkit-list-ul { list-style: disc; }
+.lexkit-content-editable .lexkit-list-ol { list-style: decimal; }
+.lexkit-content-editable .lexkit-list-nested { margin: 0.25rem 0; }
+.lexkit-content-editable .lexkit-list-li {
+  margin: 0.2rem 0;
+  padding-left: 0.15rem;
+}
+.lexkit-content-editable .lexkit-quote {
+  margin: 0.8rem 0;
+  border-left: 4px solid rgb(255 122 0);
+  padding: 0.35rem 0 0.35rem 0.9rem;
+  color: rgb(71 85 105);
+  font-style: italic;
+}
+.lexkit-content-editable .lexkit-code-block {
+  margin: 0.8rem 0;
+  border-radius: 0.5rem;
+  background: rgb(15 23 42);
+  color: rgb(241 245 249);
+  display: block;
+  overflow-x: auto;
+  padding: 0.85rem 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+.lexkit-content-editable .lexkit-hr {
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid rgb(203 213 225);
+}

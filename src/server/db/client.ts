@@ -65,7 +65,7 @@ export function createDb(env: Env) {
     return drizzle(createPostgresFromDatabaseUrl(url), { schema });
   }
 
-  // Cloudflare Workers should keep max=1. Node (Railway) can safely use a small pool
+  // Cloudflare Workers should keep max=1. Node (Next.js) can safely use a small pool
   // so concurrent dashboard requests don't queue behind a single connection.
   const isNode = (env.IS_NODE_SERVER ?? '').toLowerCase() === 'true';
   const poolMax = isNode ? parsePoolMax(env) : 1;

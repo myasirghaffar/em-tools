@@ -1,17 +1,21 @@
 import { scoreDatabaseUrl } from './database-url-diagnostics';
 
 /**
- * Resolve Postgres URL from process.env (Node / Railway / local .env).
- * Railway + Supabase plugins may inject a broken DIRECT_URL (db.*.supabase.co);
- * we prefer Supabase pooler URLs (session :5432) when multiple vars are set.
+ * Resolve Postgres URL from process.env for the Next.js embedded API.
+ * Prefer `DATABASE_URL` (transaction pooler :6543) — do not prefer `DIRECT_URL`
+ * (session pooler :5432), which quickly hits Supabase max clients with Next.
  */
 export function resolveDatabaseUrlFromProcessEnv(): string | undefined {
+  const primary = process.env.DATABASE_URL?.trim();
+  if (primary) {
+    return primary;
+  }
+
   const candidates = [
-    process.env.DATABASE_URL,
-    process.env.DIRECT_URL,
     process.env.POSTGRES_URL,
     process.env.DATABASE_PRIVATE_URL,
     process.env.SUPABASE_DATABASE_URL,
+    process.env.DIRECT_URL,
   ]
     .map((raw) => raw?.trim())
     .filter((url): url is string => Boolean(url));

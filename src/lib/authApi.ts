@@ -29,9 +29,9 @@ export function humanizeApiError(code: string, message: string): string {
     USER_DELETE_BLOCKED: "This user cannot be removed or changed in that way.",
     TIMEOUT: "The request timed out. Try again in a moment.",
     DATABASE_NOT_CONFIGURED:
-      "The live API is not connected to the database yet. Add DATABASE_URL (or Hyperdrive) on the Cloudflare Worker.",
+      "Database is not configured. Set DATABASE_URL in .env.local (Supabase pooler port 6543).",
     DATABASE_UNAVAILABLE:
-      "The live API cannot use the database (wrong URL, migrations not run, or network). Check the API Worker logs and DATABASE_URL.",
+      "Database is temporarily unavailable. Check /api/health/db and your DATABASE_URL in .env.local.",
   };
   return byCode[code] ?? (message || "Something went wrong. Please try again.");
 }

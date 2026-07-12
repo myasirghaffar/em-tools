@@ -37,12 +37,13 @@ export function parseDatabaseUrlDiagnostics(url: string | undefined): DatabaseUr
   }
 }
 
-/** Lower score = preferred for Node / Railway. */
+/** Lower score = preferred for Next.js (transaction pooler over session). */
 export function scoreDatabaseUrl(url: string): number {
   const d = parseDatabaseUrlDiagnostics(url);
   if (!d.hasUrl || d.parseError) return 100;
   if (d.usesPooler) {
-    return d.port === '5432' ? 0 : 1;
+    // Prefer transaction pooler (:6543) — session (:5432) hits max clients quickly.
+    return d.port === '6543' ? 0 : 1;
   }
   if (d.usesDirectSupabaseHost) return 20;
   return 10;

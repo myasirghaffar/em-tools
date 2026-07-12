@@ -476,6 +476,7 @@ export async function createProduct(payload: any): Promise<boolean> {
     auth: true,
     body: JSON.stringify(productWritePayload(payload)),
   });
+  invalidateAdminBootstrapCache();
   return true;
 }
 
@@ -488,6 +489,7 @@ export async function updateProduct(
     auth: true,
     body: JSON.stringify(productWritePayload(payload)),
   });
+  invalidateAdminBootstrapCache();
   return true;
 }
 
@@ -496,6 +498,7 @@ export async function deleteProduct(id: number): Promise<boolean> {
     method: "DELETE",
     auth: true,
   });
+  invalidateAdminBootstrapCache();
   return true;
 }
 
@@ -516,6 +519,7 @@ export async function updateOrderStatus(
     auth: true,
     body: JSON.stringify({ order_status }),
   });
+  invalidateAdminBootstrapCache();
   return true;
 }
 
@@ -774,11 +778,13 @@ export async function createAdminBlog(payload: {
   isPublished?: boolean;
   publishedAt?: string;
 }): Promise<BlogPost> {
-  return apiRequest<BlogPost>("/admin/blogs", {
+  const created = await apiRequest<BlogPost>("/admin/blogs", {
     method: "POST",
     auth: true,
     body: JSON.stringify(payload),
   });
+  invalidateAdminBootstrapCache();
+  return created;
 }
 
 export async function updateAdminBlog(
@@ -793,15 +799,18 @@ export async function updateAdminBlog(
     publishedAt: string;
   }>,
 ): Promise<BlogPost> {
-  return apiRequest<BlogPost>(`/admin/blogs/${id}`, {
+  const updated = await apiRequest<BlogPost>(`/admin/blogs/${id}`, {
     method: "PATCH",
     auth: true,
     body: JSON.stringify(payload),
   });
+  invalidateAdminBootstrapCache();
+  return updated;
 }
 
 export async function deleteAdminBlog(id: number): Promise<void> {
   await apiRequest<null>(`/admin/blogs/${id}`, { method: "DELETE", auth: true });
+  invalidateAdminBootstrapCache();
 }
 
 // --- Leads & sales team (admin / salesman) ---

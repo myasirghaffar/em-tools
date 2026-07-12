@@ -29,10 +29,10 @@ export const ErrorMessages: Record<ErrorCodes, string> = {
   [ErrorCodes.INTERNAL_SERVER_ERROR]: 'Something went wrong on our side. Please try again shortly.',
 
   [ErrorCodes.DATABASE_NOT_CONFIGURED]:
-    'The API cannot reach the database. The operator must set DATABASE_URL (wrangler secret) or Hyperdrive on the Worker.',
+    'The API cannot reach the database. Set DATABASE_URL in .env.local to your Supabase transaction pooler URI (port 6543).',
 
   [ErrorCodes.DATABASE_UNAVAILABLE]:
-    'The database is not available from this deployment. On Railway, set DATABASE_URL to your Supabase pooler URI (same as local .env). Use session pooler (port 5432) for Node. Check /health/db for details.',
+    'The database is temporarily unavailable. Check DATABASE_URL in .env.local (Supabase pooler :6543), then open /api/health/db. If you see max clients errors, stop extra local servers and retry.',
 
   [ErrorCodes.VALIDATION_FAILED]: 'Some of the information you entered is not valid. Please check and try again.',
 
