@@ -17,11 +17,6 @@ import {
   UserCog,
   FileText,
   ClipboardList,
-  Package,
-  Tags,
-  ShoppingCart,
-  Users,
-  Newspaper,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -45,11 +40,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { path: "/quotes", icon: FileText, label: "Quotes" },
     { path: "/sales-team", icon: UserPlus, label: "Sales team" },
     { path: "/users", icon: UserCog, label: "Users" },
-    { path: "/products", icon: Package, label: "Products" },
-    { path: "/product-categories", icon: Tags, label: "Product categories" },
-    { path: "/orders", icon: ShoppingCart, label: "Orders" },
-    { path: "/customers", icon: Users, label: "Customers" },
-    { path: "/blogs", icon: Newspaper, label: "Blog & news" },
     { path: "/quote-templates", icon: ClipboardList, label: "Quote templates" },
     { path: "/consultations", icon: MessageSquare, label: "Consultations" },
     { path: "/contact-messages", icon: Mail, label: "Contact messages" },

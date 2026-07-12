@@ -242,153 +242,6 @@ async function apiRequest<T>(
   return json.data as T;
 }
 
-function parseJsonField<T>(raw: unknown, fallback: T): T {
-  if (raw == null) return fallback;
-  if (typeof raw !== "string") return (raw as T) ?? fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-export function normalizeProduct(p: any) {
-  if (p == null || typeof p !== "object") {
-    return {
-      id: 0,
-      name: "",
-      category: "",
-      price: 0,
-      stock: 0,
-      description: "",
-      longDescription: "",
-      brand: "",
-      status: "active",
-      images: [] as string[],
-      specifications: {} as Record<string, string>,
-      attachments: [] as { title: string; href: string }[],
-      highlightOptions: [] as string[],
-    };
-  }
-  let images = p?.images;
-  if (typeof images === "string") images = parseJsonField<string[]>(images, []);
-  if (!Array.isArray(images)) images = [];
-
-  let specifications = p?.specifications;
-  if (typeof specifications === "string")
-    specifications = parseJsonField<Record<string, string>>(specifications, {});
-  if (
-    !specifications ||
-    typeof specifications !== "object" ||
-    Array.isArray(specifications)
-  )
-    specifications = {};
-
-  let attachments = p?.attachments;
-  if (typeof attachments === "string")
-    attachments = parseJsonField<{ title: string; href: string }[]>(
-      attachments,
-      [],
-    );
-  if (!Array.isArray(attachments)) attachments = [];
-
-  let highlightOptions = p?.highlightOptions;
-  if (typeof highlightOptions === "string")
-    highlightOptions = parseJsonField<string[]>(highlightOptions, []);
-  if (!Array.isArray(highlightOptions)) highlightOptions = [];
-  highlightOptions = (highlightOptions as unknown[])
-    .filter((o): o is string => typeof o === "string" && o.trim().length > 0)
-    .slice(0, 4);
-
-  return {
-    ...p,
-    images,
-    specifications,
-    attachments,
-    highlightOptions,
-  };
-}
-
-function productWritePayload(p: Record<string, unknown>) {
-  return {
-    name: String(p.name ?? "").trim(),
-    category: String(p.category ?? "").trim(),
-    price: Number(p.price) || 0,
-    stock: Number.parseInt(String(p.stock ?? "0"), 10) || 0,
-    description: String(p.description ?? "").trim(),
-    longDescription: p.longDescription
-      ? String(p.longDescription).trim()
-      : undefined,
-    brand: p.brand ? String(p.brand).trim() : undefined,
-    status:
-      p.status === "inactive" ? ("inactive" as const) : ("active" as const),
-    images: Array.isArray(p.images) ? (p.images as string[]) : [],
-    specifications:
-      p.specifications &&
-      typeof p.specifications === "object" &&
-      !Array.isArray(p.specifications)
-        ? (p.specifications as Record<string, string>)
-        : {},
-    attachments: Array.isArray(p.attachments)
-      ? (p.attachments as { title: string; href: string }[])
-      : [],
-    highlightOptions: Array.isArray(p.highlightOptions)
-      ? (p.highlightOptions as string[])
-          .map((o) => String(o).trim())
-          .filter(Boolean)
-          .slice(0, 4)
-      : [],
-  };
-}
-
-export async function fetchProducts(): Promise<any[]> {
-  const data = await apiRequest<unknown>("/store/products", { method: "GET" });
-  return ensureArray<any>(data).map(normalizeProduct);
-}
-
-export type ProductCategory = { id: number; name: string; sortOrder: number };
-
-export async function fetchProductCategories(): Promise<ProductCategory[]> {
-  const data = await apiRequest<unknown>("/store/product-categories", { method: "GET" });
-  return ensureArray<ProductCategory>(data);
-}
-
-export async function fetchProductCategoriesAdmin(): Promise<ProductCategory[]> {
-  const data = await apiRequest<unknown>("/admin/product-categories", { method: "GET", auth: true });
-  return ensureArray<ProductCategory>(data);
-}
-
-export async function createProductCategory(payload: {
-  name: string;
-  sortOrder?: number;
-}): Promise<ProductCategory> {
-  const created = await apiRequest<ProductCategory>("/admin/product-categories", {
-    method: "POST",
-    auth: true,
-    body: JSON.stringify(payload),
-  });
-  invalidateAdminBootstrapCache();
-  return created;
-}
-
-export async function updateProductCategory(
-  id: number,
-  payload: Partial<{ name: string; sortOrder: number }>,
-): Promise<ProductCategory> {
-  const updated = await apiRequest<ProductCategory>(`/admin/product-categories/${id}`, {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify(payload),
-  });
-  invalidateAdminBootstrapCache();
-  return updated;
-}
-
-export async function deleteProductCategory(id: number): Promise<void> {
-  await apiRequest<null>(`/admin/product-categories/${id}`, { method: "DELETE", auth: true });
-  invalidateAdminBootstrapCache();
-}
-
 export type QuoteTemplate = {
   id: number;
   category: string;
@@ -456,145 +309,6 @@ export async function deleteQuoteTemplate(id: number): Promise<void> {
   invalidateAdminBootstrapCache();
 }
 
-/** All products including inactive — admin only. */
-export async function fetchProductsAdmin(): Promise<any[]> {
-  const data = await apiRequest<unknown>("/admin/products", {
-    method: "GET",
-    auth: true,
-  });
-  return ensureArray<any>(data).map(normalizeProduct);
-}
-
-export async function fetchProductById(id: number): Promise<any> {
-  const p = await apiRequest<any>(`/store/products/${id}`, { method: "GET" });
-  return normalizeProduct(p);
-}
-
-export async function createProduct(payload: any): Promise<boolean> {
-  await apiRequest("/admin/products", {
-    method: "POST",
-    auth: true,
-    body: JSON.stringify(productWritePayload(payload)),
-  });
-  invalidateAdminBootstrapCache();
-  return true;
-}
-
-export async function updateProduct(
-  id: number,
-  payload: any,
-): Promise<boolean> {
-  await apiRequest(`/admin/products/${id}`, {
-    method: "PUT",
-    auth: true,
-    body: JSON.stringify(productWritePayload(payload)),
-  });
-  invalidateAdminBootstrapCache();
-  return true;
-}
-
-export async function deleteProduct(id: number): Promise<boolean> {
-  await apiRequest<null>(`/admin/products/${id}`, {
-    method: "DELETE",
-    auth: true,
-  });
-  invalidateAdminBootstrapCache();
-  return true;
-}
-
-export async function fetchOrders(): Promise<any[]> {
-  const data = await apiRequest<unknown>("/admin/orders", {
-    method: "GET",
-    auth: true,
-  });
-  return ensureArray<any>(data);
-}
-
-export async function updateOrderStatus(
-  id: number,
-  order_status: string,
-): Promise<boolean> {
-  await apiRequest(`/admin/orders/${id}`, {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify({ order_status }),
-  });
-  invalidateAdminBootstrapCache();
-  return true;
-}
-
-export type StoreOrder = {
-  id: number;
-  customer_name?: string;
-  customer_phone?: string;
-  customer_email?: string;
-  city?: string;
-  address?: string;
-  notes?: string;
-  payment_method?: string;
-  total_price?: number;
-  products?: any[];
-  payment_status?: string;
-  order_status?: string;
-  created_at?: string;
-};
-
-export async function createOrder(payload: any): Promise<StoreOrder> {
-  const lines = (Array.isArray(payload.products) ? payload.products : []).map(
-    (it: any) => ({
-      id: typeof it.id === "number" ? it.id : undefined,
-      name: String(it.name ?? ""),
-      quantity: Number(it.quantity) || 0,
-      price: Number(it.price) || 0,
-    }),
-  );
-  return apiRequest<StoreOrder>("/store/orders", {
-    method: "POST",
-    body: JSON.stringify({
-      name: payload.name,
-      email: payload.email,
-      phone: payload.phone,
-      city: payload.city,
-      address: payload.address,
-      notes: payload.notes ?? "",
-      payment_method: payload.payment_method ?? "cod",
-      total_price: Number(payload.total_price) || 0,
-      products: lines,
-    }),
-  });
-}
-
-export async function fetchCustomers(): Promise<any[]> {
-  const data = await apiRequest<unknown>("/admin/customers", {
-    method: "GET",
-    auth: true,
-  });
-  return ensureArray<any>(data);
-}
-
-/** Signed-in customer profile row (from checkout / orders), or null. */
-export async function fetchMyCustomer(): Promise<any | null> {
-  return apiRequest<any | null>("/users/me/customer", {
-    method: "GET",
-    auth: true,
-  });
-}
-
-/** @deprecated Use fetchMyCustomer — kept for older imports */
-export async function fetchCustomerByEmail(
-  _email: string,
-): Promise<any | null> {
-  return fetchMyCustomer();
-}
-
-export async function fetchMyOrders(_email: string): Promise<any[]> {
-  const data = await apiRequest<unknown>("/users/me/orders", {
-    method: "GET",
-    auth: true,
-  });
-  return ensureArray<any>(data);
-}
-
 export async function fetchConsultations(): Promise<any[]> {
   const data = await apiRequest<unknown>("/admin/consultations", {
     method: "GET",
@@ -611,40 +325,6 @@ export async function updateConsultationStatus(
     method: "PATCH",
     auth: true,
     body: JSON.stringify({ status }),
-  });
-  return true;
-}
-
-export async function createConsultation(payload: any): Promise<boolean> {
-  await apiRequest("/store/consultations", {
-    method: "POST",
-    body: JSON.stringify({
-      name: payload.name,
-      phone: payload.phone,
-      city: payload.city,
-      monthly_bill: payload.monthly_bill ?? "",
-      message: payload.message ?? "",
-    }),
-  });
-  return true;
-}
-
-export async function createContactMessage(payload: {
-  name: string;
-  email: string;
-  phone?: string;
-  subject: string;
-  message: string;
-}): Promise<boolean> {
-  await apiRequest("/store/contact-messages", {
-    method: "POST",
-    body: JSON.stringify({
-      name: payload.name,
-      email: payload.email,
-      phone: payload.phone ?? "",
-      subject: payload.subject,
-      message: payload.message,
-    }),
   });
   return true;
 }
@@ -669,24 +349,6 @@ export async function updateContactMessageStatus(
   return true;
 }
 
-export type ChartPoint = { label: string; sales: number; orders: number };
-
-export async function fetchAnalytics(): Promise<{
-  totalSales: number;
-  totalOrders: number;
-  totalCustomers: number;
-  totalProducts: number;
-  monthlySales: number[];
-  orderGrowth: number[];
-  chartSeries: {
-    weekly: ChartPoint[];
-    monthly: ChartPoint[];
-    yearly: ChartPoint[];
-  };
-}> {
-  return apiRequest("/admin/analytics", { method: "GET", auth: true });
-}
-
 export type ToolsAnalytics = {
   totalLeads: number;
   totalQuotes: number;
@@ -704,12 +366,6 @@ type AdminBootstrapPayload = {
   leads?: any[];
   salesTeam?: any[];
   analytics: ToolsAnalytics | Record<string, unknown>;
-  /** Legacy store fields (optional if an older API responds). */
-  products?: any[];
-  productCategories?: ProductCategory[];
-  orders?: any[];
-  customers?: any[];
-  blogs?: any[];
 };
 
 let adminBootstrapCache:
@@ -723,7 +379,7 @@ export function getAdminBootstrapCache(): AdminBootstrapPayload | null {
   return adminBootstrapCache.data;
 }
 
-/** Clear short-lived admin bootstrap cache after mutations (e.g. blogs). */
+/** Clear short-lived admin bootstrap cache after mutations. */
 export function invalidateAdminBootstrapCache(): void {
   adminBootstrapCache = undefined;
 }
@@ -738,79 +394,6 @@ export async function fetchAdminBootstrap(): Promise<AdminBootstrapPayload> {
   const payload = (data ?? {}) as AdminBootstrapPayload;
   adminBootstrapCache = { atMs: Date.now(), data: payload };
   return payload;
-}
-
-/** Public blog card shape (store + admin list). */
-export type BlogPost = {
-  id: number;
-  title: string;
-  tag: string;
-  image: string;
-  date: string;
-  excerpt: string;
-  body: string;
-  is_published: boolean;
-  published_at: string;
-  created_at?: string;
-  updated_at?: string;
-};
-
-export async function fetchStoreBlogs(): Promise<BlogPost[]> {
-  const data = await apiRequest<unknown>("/store/blogs", { method: "GET" });
-  return ensureArray<BlogPost>(data);
-}
-
-export async function fetchStoreBlog(id: number): Promise<BlogPost> {
-  return apiRequest<BlogPost>(`/store/blogs/${id}`, { method: "GET" });
-}
-
-export async function fetchAdminBlogs(): Promise<BlogPost[]> {
-  const data = await apiRequest<unknown>("/admin/blogs", { method: "GET", auth: true });
-  return ensureArray<BlogPost>(data);
-}
-
-export async function createAdminBlog(payload: {
-  title: string;
-  tag?: string;
-  imageUrl: string;
-  excerpt?: string;
-  body?: string;
-  isPublished?: boolean;
-  publishedAt?: string;
-}): Promise<BlogPost> {
-  const created = await apiRequest<BlogPost>("/admin/blogs", {
-    method: "POST",
-    auth: true,
-    body: JSON.stringify(payload),
-  });
-  invalidateAdminBootstrapCache();
-  return created;
-}
-
-export async function updateAdminBlog(
-  id: number,
-  payload: Partial<{
-    title: string;
-    tag: string;
-    imageUrl: string;
-    excerpt: string;
-    body: string;
-    isPublished: boolean;
-    publishedAt: string;
-  }>,
-): Promise<BlogPost> {
-  const updated = await apiRequest<BlogPost>(`/admin/blogs/${id}`, {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify(payload),
-  });
-  invalidateAdminBootstrapCache();
-  return updated;
-}
-
-export async function deleteAdminBlog(id: number): Promise<void> {
-  await apiRequest<null>(`/admin/blogs/${id}`, { method: "DELETE", auth: true });
-  invalidateAdminBootstrapCache();
 }
 
 // --- Leads & sales team (admin / salesman) ---

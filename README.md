@@ -1,14 +1,18 @@
 # EM Tools
 
-Admin / CRM / shop operations for EnergyMart.
+**CRM / ops admin** for EnergyMart (leads, quotes, sales team, inboxes).
 
-Next.js full-stack app with API at `/api/*`, sharing the **same Supabase database** as **em-solar** (storefront).
+Shop catalog admin (products, orders, blogs) lives in **[`../em-solar`](../em-solar)** `/admin`.
+
+Same Supabase database as em-solar; each app embeds its own `/api`.
+
+## Ports
+
+- Dev: http://localhost:3000
 
 ## Modules
 
-- Dashboard, Leads, Quotes, Sales team, Users
-- Products, Product categories, Orders, Customers, Blog & news
-- Quote templates, Consultations, Contact messages, Settings
+Dashboard · Leads · Quotes · Sales team · Users · Quote templates · Consultations · Contact messages · Settings
 
 ## Setup
 
@@ -19,8 +23,4 @@ npm install
 npm run dev
 ```
 
-Default: [http://localhost:3001](http://localhost:3001)
-
-## Note
-
-Standalone `em-solar-backend` is deprecated — both apps embed their own API.
+Sign in with an **admin** account at http://localhost:3000/login.
