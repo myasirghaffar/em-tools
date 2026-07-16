@@ -27,24 +27,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isSalesman } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
 
   useScrollLock(sidebarOpen);
 
   const closeMobileDrawer = () => setSidebarOpen(false);
 
+  const homePath = isSalesman ? "/leads" : "/dashboard";
+
   const navItems = [
-    { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard", exact: true },
-    { path: "/leads", icon: FolderOpen, label: "Leads" },
-    { path: "/quotes", icon: FileText, label: "Quotes" },
-    { path: "/sales-team", icon: UserPlus, label: "Sales team" },
-    { path: "/users", icon: UserCog, label: "Users" },
-    { path: "/quote-templates", icon: ClipboardList, label: "Quote templates" },
-    { path: "/consultations", icon: MessageSquare, label: "Consultations" },
-    { path: "/contact-messages", icon: Mail, label: "Contact messages" },
-    { path: "/settings", icon: Settings, label: "Settings" },
-  ];
+    { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard", exact: true, staff: "admin" as const },
+    { path: "/leads", icon: FolderOpen, label: "Leads", staff: "all" as const },
+    { path: "/quotes", icon: FileText, label: "Quotes", staff: "all" as const },
+    { path: "/sales-team", icon: UserPlus, label: "Sales team", staff: "admin" as const },
+    { path: "/users", icon: UserCog, label: "Users", staff: "admin" as const },
+    { path: "/quote-templates", icon: ClipboardList, label: "Quote templates", staff: "admin" as const },
+    { path: "/consultations", icon: MessageSquare, label: "Consultations", staff: "admin" as const },
+    { path: "/contact-messages", icon: Mail, label: "Contact messages", staff: "admin" as const },
+    { path: "/settings", icon: Settings, label: "Settings", staff: "admin" as const },
+  ].filter((item) => item.staff === "all" || !isSalesman);
 
   return (
     <div className="min-h-screen bg-slate-100 flex">
@@ -54,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         } lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-gray-200`}
       >
         <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-gray-200">
-          <Link href="/dashboard" onClick={closeMobileDrawer} className="flex items-center gap-2.5 min-w-0">
+          <Link href={homePath} onClick={closeMobileDrawer} className="flex items-center gap-2.5 min-w-0">
             <Image
               src="/em-logo-only.png"
               alt="EnergyMart"

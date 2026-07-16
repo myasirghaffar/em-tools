@@ -28,15 +28,15 @@ export default function Login() {
         toastError(msg);
         return;
       }
-      if (loggedInUser.role !== "admin") {
+      if (loggedInUser.role !== "admin" && loggedInUser.role !== "salesman") {
         await logout();
-        const msg = "This app is for admin accounts only.";
+        const msg = "This app is for admin and sales accounts only.";
         setError(msg);
         toastError(msg);
         return;
       }
       toastSuccess("Signed in");
-      router.replace("/dashboard");
+      router.replace(loggedInUser.role === "salesman" ? "/leads" : "/dashboard");
     } catch (err) {
       if (isAuthApiError(err)) {
         if (err.code === "AUTH_EMAIL_NOT_VERIFIED") {
@@ -75,8 +75,8 @@ export default function Login() {
               EM Tools<span className="text-[#FF7A00]"> · EnergyMart</span>
             </span>
           </div>
-          <h1 className="text-2xl font-bold">Admin sign in</h1>
-          <p className="text-gray-300 mt-1">EnergyMart Tools — admin access only</p>
+          <h1 className="text-2xl font-bold">Sign in</h1>
+          <p className="text-gray-300 mt-1">EnergyMart Tools — admin and sales access</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
